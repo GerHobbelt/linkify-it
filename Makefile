@@ -6,7 +6,7 @@ TMP_PATH    := /tmp/${NPM_PACKAGE}-$(shell date +%s)
 REMOTE_NAME ?= origin
 REMOTE_REPO ?= $(shell git config --get remote.${REMOTE_NAME}.url)
 
-CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut --bytes=-6) master)
+CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut -c -6) master)
 GITHUB_PROJ := https://github.com/nodeca/${NPM_PACKAGE}
 
 
