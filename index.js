@@ -432,7 +432,7 @@ LinkifyIt.prototype.test = function test(text) {
   this.__text_cache__ = text;
   this.__index__      = -1;
 
-  if (!text.length) { return false; }
+  if (!text || !text.length) { return false; }
 
   var m, ml, me, len, shift, next, re, tld_pos, at_pos;
 
