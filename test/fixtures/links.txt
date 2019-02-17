@@ -263,6 +263,7 @@ email@example.com
 
 (someone@example.com?subject=This%20is%20the%20subject&cc=someone_else@example.com&body=This%20is%20the%20body)
 someone@example.com?subject=This%20is%20the%20subject&cc=someone_else@example.com&body=This%20is%20the%20body
+
 %
 % International
 %
@@ -303,6 +304,11 @@ http://example.com/foo-(with-nested-(parens))
 
 http://example.com/(foo) (bar)
 http://example.com/(foo)
+
+http://example.com/foo-(with-nested-(parens-(trailing-dot))).
+http://example.com/foo-(with-nested-(parens-(sans-trailing-dot)))
+
+
 
 %
 % Others...
