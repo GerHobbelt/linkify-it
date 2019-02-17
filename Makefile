@@ -13,6 +13,9 @@ GITHUB_PROJ := https://github.com/nodeca/${NPM_PACKAGE}
 lint:
 	./node_modules/.bin/eslint .
 
+fix:
+	./node_modules/.bin/eslint --fix .
+
 
 test: lint
 	rm -rf coverage
@@ -76,5 +79,5 @@ publish: browserify
 	npm publish ${GITHUB_PROJ}/tarball/${NPM_VERSION}
 
 
-.PHONY: publish lint test doc demo gh-pages coverage
-.SILENT: help lint test doc todo
+.PHONY: publish lint fix test doc demo gh-pages coverage
+.SILENT: help lint fix test doc todo
