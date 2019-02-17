@@ -225,6 +225,12 @@ user@domain.com
 mailto:user@domain.com
 
 
+% Paired underscores should still be part of the URL
+https://test.com/a--_b_.html
+
+http://www.kmart.com/bestway-10'-x-30inch-steel-pro-frame-pool/p-004W007538417001P
+
+
 %
 % Emails
 %
