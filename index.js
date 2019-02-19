@@ -35,7 +35,8 @@ function escapeRE(str) { return str.replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&'); }
 var defaultOptions = {
   fuzzyLink: true,
   fuzzyEmail: true,
-  fuzzyIP: false
+  fuzzyIP: false,
+  '---': false        // accept long dash in URI (false) or do NOT accept? (true)
 };
 
 
@@ -54,9 +55,18 @@ var defaultSchemas = {
       if (!self.re.http) {
         // compile lazily, because "host"-containing variables can change on tlds update.
         self.re.http =  new RegExp(
-          '^\\/\\/' + self.re.src_auth + self.re.src_host_port_strict + self.re.src_path, 'i'
+          '^\\/\\/' + self.re.src_auth + self.re.src_host_or_localhosts +
+          self.re.src_port + self.re.src_host_terminator + self.re.src_path, 'i'
         );
       }
+      console.warn({
+        text: text,
+        pos: pos,
+        tail: tail,
+        test: self.re.http.test(tail),
+        match: tail.match(self.re.http),
+        http_re: 1 //self.re.http.source
+      });
       if (self.re.http.test(tail)) {
         return tail.match(self.re.http)[0].length;
       }
@@ -65,6 +75,8 @@ var defaultSchemas = {
   },
   'https:':  'http:',
   'ftp:':    'http:',
+  'sftp:':   'http:',
+  'telnet:': 'http:',
   '//':      {
     validate: function (text, pos, self) {
       var tail = text.slice(pos);
@@ -76,7 +88,18 @@ var defaultSchemas = {
           self.re.src_auth +
           // Don't allow single-level domains, because of false positives like '//test'
           // with code comments
-          '(?:localhost|(?:(?:' + self.re.src_domain + ')\\.)+' + self.re.src_domain_root + ')' +
+          '(?:' +
+          // Don't need IP4 check, because digits are already allowed in normal domain names
+          //   self.re.src_ip4 +
+          // '|' +
+            '(?:\\[' + self.re.src_ip6 + '\\])' +
+          '|' +
+            'localhost' +
+          '|' +
+            // Don't allow single-level domains, because of false positives like '//test'
+            // with code comments
+            '(?:(?:(?:' + self.re.src_domain + ')\\.)+' + self.re.src_domain_root + ')' +
+          ')' +
           self.re.src_port +
           self.re.src_host_terminator +
           self.re.src_path,
@@ -105,6 +128,36 @@ var defaultSchemas = {
       }
       if (self.re.mailto.test(tail)) {
         return tail.match(self.re.mailto)[0].length;
+      }
+      return 0;
+    }
+  },
+  'news:': {
+    validate: function (text, pos, self) {
+      var tail = text.slice(pos);
+
+      if (!self.re.news) {
+        self.re.news =  new RegExp(
+          '^' + self.re.src_host_strict, 'i'
+        );
+      }
+      if (self.re.news.test(tail)) {
+        return tail.match(self.re.news)[0].length;
+      }
+      return 0;
+    }
+  },
+  'tel:': {
+    validate: function (text, pos, self) {
+      var tail = text.slice(pos);
+
+      if (!self.re.telephone) {
+        self.re.telephone =  new RegExp(
+          '^' + self.re.src_telephone_strict, 'i'
+        );
+      }
+      if (self.re.telephone.test(tail)) {
+        return tail.match(self.re.telephone)[0].length;
       }
       return 0;
     }
@@ -170,6 +223,14 @@ function compile(self) {
   re.link_fuzzy       = RegExp(untpl(re.tpl_link_fuzzy), 'i');
   re.link_no_ip_fuzzy = RegExp(untpl(re.tpl_link_no_ip_fuzzy), 'i');
   re.host_fuzzy_test  = RegExp(untpl(re.tpl_host_fuzzy_test), 'i');
+
+  re.host_fuzzy                   = RegExp(untpl(re.tpl_host_fuzzy), 'i');
+  re.host_no_ip_fuzzy             = RegExp(untpl(re.tpl_host_no_ip_fuzzy), 'i');
+  re.host_fuzzy_strict            = RegExp(untpl(re.tpl_host_fuzzy_strict), 'i');
+  re.host_port_fuzzy_strict       = RegExp(untpl(re.tpl_host_port_fuzzy_strict), 'i');
+  re.host_port_no_ip_fuzzy_strict = RegExp(untpl(re.tpl_host_port_no_ip_fuzzy_strict), 'i');
+
+
 
   //
   // Compile each schema
@@ -475,7 +536,7 @@ LinkifyIt.prototype.test = function test(text) {
     // guess schemaless emails
     at_pos = text.indexOf('@');
     if (at_pos >= 0) {
-      // We can't skip this check, because this cases are possible:
+      // We can't skip this check, because these cases are possible:
       // 192.168.1.1@gmail.com, my.in@example.com
       if ((me = text.match(this.re.email_fuzzy)) !== null) {
 

@@ -50,3 +50,21 @@ a1.2.3.4
 %
 foo@bar     % Should be at second level domain & with correct tld
 mailto:bar
+
+
+%
+% RFC3986 example URIs we specifically DO NOT support:
+%
+
+urn:oasis:names:specification:docbook:dtd:xml:4.1.2
+foo://example.com:8042/over/there?name=ferret#nose
+g;x=1/../y
+g#s/../x
+example://a/b/c/%7Bfoo%7D
+eXAMPLE://a/./b/../b/%63/%7bfoo%7d
+
+% URI with unspecified IPv6 host:
+http://[::]:80/ietf/uri
+http://[::]/ietf/uri
+
+

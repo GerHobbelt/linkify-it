@@ -186,6 +186,8 @@ http://business.timesonline.co.uk/article/0,,9065-2473189,00.html
 http://example.com/123!
 http://example.com/123
 
+http://example.com/123!456
+
 http://example.com/foo--bar
 
 % some sites have links with trailing dashes
@@ -311,8 +313,11 @@ http://example.com/foo-(with-nested-(parens))
 http://example.com/(foo) (bar)
 http://example.com/(foo)
 
-http://example.com/foo-(with-nested-(parens-(trailing-dot))).
+http://example.com/foo-(with-nested-(parens-(sans-trailing-dot))) X
 http://example.com/foo-(with-nested-(parens-(sans-trailing-dot)))
+
+http://example.com/foo-(with-nested-(parens-(-trailing-dot))).
+http://example.com/foo-(with-nested-(parens-(-trailing-dot)))
 
 
 
@@ -339,3 +344,107 @@ www.a--b.com
 www.c--u.com
 
 http://a---b.com/
+
+
+%
+% RFC3986
+%
+
+ftp://ftp.is.co.za/rfc/rfc1808.txt
+
+http://www.ietf.org/rfc/rfc2396.txt
+
+https://[2001:db8::7]/c=GB?objectClass?one
+
+mailto:John.Doe@example.com
+
+news:comp.infosystems.www.servers.unix
+
+tel:+1-816-555-1212
+
+telnet://192.0.2.16:80/
+
+http://example.com:8042/over/there?name=ferret#nose
+
+% Also legal and seen in the wild quite often: the empty bookmark #:
+http://example.com:8042/over/there#
+
+www.w3.org/Addressing/
+
+/a/b/c/./../../g
+
+mid/content=5/../6
+
+http://a/b/c/g;x?y#s
+
+../../../g
+
+/./g
+
+http://a/b/c/%7Bfoo%7D
+
+http://a/./b/../b/%63/%7bfoo%7d
+
+% must eat only 'legal' escapes:
+http://a/./b/../b/%G63/%7bfoo%zz
+http://a/./b/../b/
+
+http://example.com
+
+http://example.com/
+
+% we MAY NOT see a port when host is followed by :
+http://example.com:/
+http://example.com
+
+http://example.com:80/
+
+sftp://cnn.example.com&story=breaking_news@10.0.0.1/top_story.htm
+
+http://www.ics.uci.edu/pub/ietf/uri/#Related
+
+%
+% IPv6 ~ RFC3513 + RFC3986
+%
+
+http://[1080:0:0:0:8:800:200C:417A]:80/ietf/uri
+
+http://[1080:0:0:0:8:800:200C:417A]/ietf/uri
+
+http://[FF01:0:0:0:0:0:0:101]:80/ietf/uri
+
+http://[FF01:0:0:0:0:0:0:101]/ietf/uri
+
+http://[0:0:0:0:0:0:0:1]:80/ietf/uri
+
+http://[0:0:0:0:0:0:0:1]/ietf/uri
+
+http://[1080::8:800:200C:417A]:80/ietf/uri
+
+http://[1080::8:800:200C:417A]/ietf/uri
+
+http://[FF01::101]:80/ietf/uri
+
+http://[FF01::101]/ietf/uri
+
+http://[::1]:80/ietf/uri
+
+http://[::1]/ietf/uri
+
+http://[0:0:0:0:0:0:13.1.68.3]:80/ietf/uri
+
+http://[0:0:0:0:0:0:13.1.68.3]/ietf/uri
+
+http://[0:0:0:0:0:FFFF:129.144.52.38]:80/ietf/uri
+
+http://[0:0:0:0:0:FFFF:129.144.52.38]/ietf/uri
+
+http://[::13.1.68.3]:80/ietf/uri
+
+http://[::13.1.68.3]/ietf/uri
+
+http://[::FFFF:129.144.52.38]:80/ietf/uri
+
+http://[::FFFF:129.144.52.38]/ietf/uri
+
+

@@ -19,7 +19,7 @@ fix:
 
 test: lint
 	rm -rf coverage
-	./node_modules/.bin/istanbul cover node_modules/.bin/_mocha
+	node_modules/.bin/mocha
 
 
 report-coverage:
