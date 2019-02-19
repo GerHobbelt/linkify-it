@@ -15,7 +15,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "pub": "npm publish --access public"
   },
   "dependencies": {
     "uc.micro": "^1.0.6"
@@ -27,11 +28,11 @@
     "browserify": "16.2.3",
     "chai": "4.2.0",
     "coveralls": "3.0.2",
-    "eslint": "5.14.0",
+    "eslint": "5.14.1",
     "istanbul": "0.4.5",
     "jade": "1.11.0",
     "mdurl": "1.0.1",
-    "mocha": "5.2.0",
+    "mocha": "6.0.0",
     "ndoc": "5.0.1",
     "stylus": "0.54.5",
     "tlds": "1.203.1"
