@@ -68,7 +68,19 @@ var defaultSchemas = {
         http_re: 1 //self.re.http.source
       });
       if (self.re.http.test(tail)) {
-        return tail.match(self.re.http)[0].length;
+        var m = tail.match(self.re.http);
+        var l = m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL, e.g. dot `.`:
+        for (;;) {
+          tail = tail.substring(0, l);
+          var m2 = tail.match(self.re.http);
+          var l2 = m2 ? m2[0].length : 0;
+          if (l2 === l) break;
+          l = l2;
+        }
+        return l;
       }
       return 0;
     }
@@ -112,7 +124,20 @@ var defaultSchemas = {
         // should not be `://` & `///`, that protects from errors in protocol name
         if (pos >= 3 && text[pos - 3] === ':') { return 0; }
         if (pos >= 3 && text[pos - 3] === '/') { return 0; }
-        return tail.match(self.re.no_http)[0].length;
+
+        var m = tail.match(self.re.no_http);
+        var l = m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL, e.g. dot `.`:
+        for (;;) {
+          tail = tail.substring(0, l);
+          var m2 = tail.match(self.re.no_http);
+          var l2 = m2 ? m2[0].length : 0;
+          if (l2 === l) break;
+          l = l2;
+        }
+        return l;
       }
       return 0;
     }
@@ -123,7 +148,8 @@ var defaultSchemas = {
 
       if (!self.re.mailto) {
         self.re.mailto =  new RegExp(
-          '^' + self.re.src_email_name + '@' + self.re.src_host_strict + self.re.src_get_params, 'i'
+          '^' + self.re.src_email_name + '@' + self.re.src_host_or_localhosts +
+          self.re.src_host_terminator + self.re.src_get_params, 'i'
         );
       }
       if (self.re.mailto.test(tail)) {
