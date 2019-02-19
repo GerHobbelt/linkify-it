@@ -519,7 +519,6 @@ LinkifyIt.prototype.test = function test(text) {
       // if tld is located after found link - no need to check fuzzy pattern
       if (this.__index__ < 0 || tld_pos < this.__index__) {
         if ((ml = text.match(this.__opts__.fuzzyIP ? this.re.link_fuzzy : this.re.link_no_ip_fuzzy)) !== null) {
-
           shift = ml.index + ml[1].length;
 
           if (this.__index__ < 0 || shift < this.__index__) {

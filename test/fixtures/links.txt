@@ -313,11 +313,20 @@ http://example.com/foo-(with-nested-(parens))
 http://example.com/(foo) (bar)
 http://example.com/(foo)
 
-http://example.com/foo-(with-nested-(parens-(sans-trailing-dot))) X
+http://example.com/foo-(with-nested-(parens-(sans-trailing-dot)))
 http://example.com/foo-(with-nested-(parens-(sans-trailing-dot)))
 
 http://example.com/foo-(with-nested-(parens-(-trailing-dot))).
 http://example.com/foo-(with-nested-(parens-(-trailing-dot)))
+
+http://example.com/foo-(with-unmatched-(parens-(-yes).
+http://example.com/foo-(with-unmatched-(parens-(-yes)
+
+http://example.com/foo-(w(i)(th)((-well-(matc)he(((d-(parens-(-yes)))))))).   % Gee! An insane nesting level! Matched!
+http://example.com/foo-(w(i)(th)((-well-(matc)he(((d-(parens-(-yes))))))))
+
+http://example.com/foo-(w(i)(th)((-un(matc)he(((d-(parens-(-yes)).   % Gee! An insane nesting level! With UNMatched braces!
+http://example.com/foo-(w(i)(th)((-un(matc)he(((d-(parens-(-yes))
 
 
 
@@ -430,6 +439,8 @@ http://[FF01::101]/ietf/uri
 http://[::1]:80/ietf/uri
 
 http://[::1]/ietf/uri
+
+% IPv6 wrapping IP4 cf. RFC:
 
 http://[0:0:0:0:0:0:13.1.68.3]:80/ietf/uri
 

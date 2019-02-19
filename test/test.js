@@ -39,13 +39,32 @@ describe('links', function () {
       next = line.trim();
     }
 
-    it('line ' + (idx + 1), function () {
-      console.warn('line ' + (idx + 1), { line: line, next: next, match: l.match(line) });
-      assert.ok(l.pretest(line), '(pretest failed in `' + line + '`)');
-      assert.ok(l.test('\n' + line + '\n'), '(link not found in `\\n' + line + '\\n`)');
-      assert.ok(l.test(line), '(link not found in `' + line + '`)');
-      assert.ok(l.test('pre bla ' + line + ' post bla'), '(link not found in `' + line + '`)');
-      assert.equal(l.match(line)[0].url, next);
+    [
+      [ '', '', '' ],
+      [ '\n\n', '\n\n', 'surrounded by whitspace' ],
+      [ 'With pre bla bla bla ', ' and post bla bla bla.', 'embedded in a sentence (text)' ],
+      // [ 'With pre bla bla bla (', ') and post bla bla bla.', 'enclosed in ()-parens' ],
+      // [ 'With pre bla bla bla {', '} and post bla bla bla.', 'enclosed in {}-braces' ],
+      // [ 'With pre bla bla bla [', '] and post bla bla bla.', 'enclosed in []-brackets' ],
+      [ 'With pre bla bla bla <', '> and post bla bla bla.', 'enclosed in <>-brackets' ],
+      // [ 'With pre bla bla bla *', '* and post bla bla bla.', 'enclosed in *-stars' ],
+      // [ 'With pre bla bla bla (', ', which is under test) and post bla bla bla.', 'inside ()-parens' ],
+      // [ 'With pre bla bla bla {', ', which is under test} and post bla bla bla.', 'inside {}-braces' ],
+      // [ 'With pre bla bla bla [', ', which is under test] and post bla bla bla.', 'inside []-brackets' ],
+      [ 'With pre bla bla bla <', ', which is under test> and post bla bla bla.', 'inside <>-brackets' ]
+      // [ 'With pre bla bla bla *', ', which is under test* and post bla bla bla.', 'inside *-stars' ]
+    ].forEach(function (spec) {
+      var pre = spec[0];
+      var post = spec[1];
+      var msg = spec[2];
+      var testline = pre + line + post;
+
+      it('line ' + (idx + 1) + (msg ? ' (' + msg + ')' : ''), function () {
+        console.warn('line ' + (idx + 1), { line: testline, next: next, match: l.match(testline) });
+        assert.ok(l.pretest(testline), '(pretest failed in `' + line + '`)');
+        assert.ok(l.test(testline), '(link not found in `' + line + '`)');
+        assert.equal(l.match(testline)[0].url, next);
+      });
     });
   });
 
