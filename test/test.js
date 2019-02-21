@@ -60,7 +60,7 @@ describe('links', function () {
       var testline = pre + line + post;
 
       it('line ' + (idx + 1) + (msg ? ' (' + msg + ')' : ''), function () {
-        console.warn('line ' + (idx + 1), { line: testline, next: next, match: l.match(testline) });
+        // console.warn('line ' + (idx + 1), { line: testline, next: next, match: l.match(testline) });
         assert.ok(l.pretest(testline), '(pretest failed in `' + line + '`)');
         assert.ok(l.test(testline), '(link not found in `' + line + '`)');
         assert.equal(l.match(testline)[0].url, next);

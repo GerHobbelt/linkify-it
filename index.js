@@ -59,28 +59,23 @@ var defaultSchemas = {
           self.re.src_port + self.re.src_host_terminator + self.re.src_path, 'i'
         );
       }
-      console.warn({
-        text: text,
-        pos: pos,
-        tail: tail,
-        test: self.re.http.test(tail),
-        match: tail.match(self.re.http),
-        http_re: 1 //self.re.http.source
-      });
+      // console.warn({
+      //   text: text,
+      //   pos: pos,
+      //   tail: tail,
+      //   test: self.re.http.test(tail),
+      //   match: tail.match(self.re.http),
+      //   http_re: 1 //self.re.http.source
+      // });
       if (self.re.http.test(tail)) {
         var m = tail.match(self.re.http);
         var l = m[0].length;
         // now make sure we didn't gobble too much:
         // some characters are not acceptable at the end
-        // of a URL, e.g. dot `.`:
-        for (;;) {
-          tail = tail.substring(0, l);
-          var m2 = tail.match(self.re.http);
-          var l2 = m2 ? m2[0].length : 0;
-          if (l2 === l) break;
-          l = l2;
-        }
-        return l;
+        // of a URL path/query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
+        return tail.length;
       }
       return 0;
     }
@@ -129,15 +124,10 @@ var defaultSchemas = {
         var l = m[0].length;
         // now make sure we didn't gobble too much:
         // some characters are not acceptable at the end
-        // of a URL, e.g. dot `.`:
-        for (;;) {
-          tail = tail.substring(0, l);
-          var m2 = tail.match(self.re.no_http);
-          var l2 = m2 ? m2[0].length : 0;
-          if (l2 === l) break;
-          l = l2;
-        }
-        return l;
+        // of a URL path/query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
+        return tail.length;
       }
       return 0;
     }
@@ -153,7 +143,22 @@ var defaultSchemas = {
         );
       }
       if (self.re.mailto.test(tail)) {
-        return tail.match(self.re.mailto)[0].length;
+        var m = tail.match(self.re.mailto);
+        var l = m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query section, e.g. dot `.`:
+        // remove those from the end of the match
+        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
+        console.warn('mailto:', {
+          m: m,
+          l: l,
+          l2: tail.length,
+          tail: tail,
+          re: self.re.strip_from_end_of_url.source,
+          text: text
+        });
+        return tail.length - 2;
       }
       return 0;
     }
@@ -256,7 +261,7 @@ function compile(self) {
   re.host_port_fuzzy_strict       = RegExp(untpl(re.tpl_host_port_fuzzy_strict), 'i');
   re.host_port_no_ip_fuzzy_strict = RegExp(untpl(re.tpl_host_port_no_ip_fuzzy_strict), 'i');
 
-
+  re.strip_from_end_of_url = RegExp('(?:' + re.src_not_allowed_at_end_of_url + ')+$', 'i');
 
   //
   // Compile each schema

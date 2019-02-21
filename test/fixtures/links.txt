@@ -169,6 +169,9 @@ http://example.com/foo_bar
 
 http://172.26.142.48/viewerjs/#../0529/slides.pdf
 
+% observed in the wild: single page web apps which use an empty bookmark section:
+http://172.26.142.48/viewerjs/#
+
 http://example.com/foo_bar..
 http://example.com/foo_bar
 
@@ -328,6 +331,15 @@ http://example.com/foo-(w(i)(th)((-well-(matc)he(((d-(parens-(-yes))))))))
 http://example.com/foo-(w(i)(th)((-un(matc)he(((d-(parens-(-yes)).   % Gee! An insane nesting level! With UNMatched braces!
 http://example.com/foo-(w(i)(th)((-un(matc)he(((d-(parens-(-yes))
 
+
+%
+% PHP array parameters and other oddities
+%
+
+% $url = 'http://www.example.com?aParam[]=value1&aParam[]=value2&aParam[]=value3';
+http://www.example.com?aParam[]=value1&aParam[]=value2&aParam[]=value3
+
+http://www.example.com?aParam[0]=1&aParam[1]=4&aParam[a]=b&aParam[c]=d
 
 
 %
