@@ -131,7 +131,12 @@ var defaultSchemas = {
       }
       if (self.re.http.test(tail)) {
         var m = tail.match(self.re.http);
-        return m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        text = m[0].replace(self.re.strip_from_end_of_url, '');
+        return text.length;
       }
       return 0;
     }
@@ -177,7 +182,12 @@ var defaultSchemas = {
         if (pos >= 3 && text[pos - 3] === '/') { return 0; }
 
         var m = tail.match(self.re.no_http);
-        return m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        text = m[0].replace(self.re.strip_from_end_of_url, '');
+        return text.length;
       }
       return 0;
     }
@@ -194,7 +204,12 @@ var defaultSchemas = {
       }
       if (self.re.mailto.test(tail)) {
         var m = tail.match(self.re.mailto);
-        return m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        text = m[0].replace(self.re.strip_from_end_of_url, '');
+        return text.length;
       }
       return 0;
     }
@@ -210,7 +225,12 @@ var defaultSchemas = {
       }
       if (self.re.news.test(tail)) {
         var m = tail.match(self.re.news);
-        return m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        text = m[0].replace(self.re.strip_from_end_of_url, '');
+        return text.length;
       }
       return 0;
     }
@@ -221,12 +241,25 @@ var defaultSchemas = {
 
       if (!self.re.telephone) {
         self.re.telephone =  new RegExp(
-          '^' + self.re.src_telephone_strict, 'i'
+          '^ ?' + self.re.src_telephone_strict, 'i'
         );
       }
       if (self.re.telephone.test(tail)) {
         var m = tail.match(self.re.telephone);
-        return m[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match
+        text = m[0].replace(self.re.strip_from_end_of_url, '');
+        var len = text.length;
+        // is it a 'legal' phone number? (local, national or international)
+        // We use a very basic check for this: it must have
+        // at least 8 characters (which is negligibly different
+        // from the more obvious '8 *digits* minimum'):
+        if (len >= 8) {
+          return len;
+        }
+        return;
       }
       return 0;
     }
