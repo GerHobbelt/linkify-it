@@ -6,8 +6,9 @@
 (someone@example.com?subject=This%20is%20the%20subject&cc=someone_else@example.com&body=This%20is%20the%20body)
 someone@example.com?subject=This%20is%20the%20subject&cc=someone_else@example.com&body=This%20is%20the%20body
 
-% Phone & Whatsapp: tel:+31 (0) 6 42434455
+Phone & Whatsapp: tel:+31 (0) 6 42434455
+tel:+31 (0) 6 42434455
 
-% tel: (202) 885-1000
+tel:(202) 885-1000
 
-% tel: +34 912 754 779
+tel:+34 912 754 779
