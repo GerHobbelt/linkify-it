@@ -56,20 +56,13 @@ function isOptionsObj(obj) {
  * @return {Object}        `{shift, text}` info for the trimmed match.
  */
 function trimUnwantedTailsAndWraps(re, prefix, text) {
-  console.warn('function trimUnwantedTailsAndWraps:', {
-    prefix: prefix,
-    text: text
-  });
+  var prefixLength = prefix.length;
   text = prefix + text;
   // now make sure we didn't gobble too much:
   // some characters are not acceptable at the end
   // of a URL query/bookmark section, e.g. dot `.`:
   // remove those from the end of the match
   text = text.replace(re.strip_from_end_of_url, '');
-  console.warn('function trimUnwantedTailsAndWraps STRIP #1:', {
-    prefix: prefix,
-    text: text
-  });
 
   // now see if the given uri is wrapped in braces or brackets of any kind:
   if (!re.wrappings) {
@@ -99,11 +92,6 @@ function trimUnwantedTailsAndWraps(re, prefix, text) {
     text = text.replace(re.wrappings, replMatch);
   }
 
-  console.warn('function trimUnwantedTailsAndWraps LOOP:', {
-    prefix: prefix,
-    text: text,
-    shift: shift
-  });
   // the extracted (wrapped) uri may still have some undesired trailing characters
   // attached: remove those now:
   if (shift) {
@@ -111,13 +99,16 @@ function trimUnwantedTailsAndWraps(re, prefix, text) {
   }
   // correct for the prefix' length at the end, as we started with prefix added
   // to the uri to process in here:
-  shift -= prefix.length;
-  console.warn('function trimUnwantedTailsAndWraps STRIP #2:', {
-    prefix: prefix,
-    prefixLength: prefix.length,
-    text: text,
-    shift: shift
-  });
+  var l = prefixLength;
+  l -= shift;
+  shift -= prefixLength;
+  // and trim off any lingering prefix:
+  if (l > 0) {
+    text = text.substring(l);
+    // `l` is larger than `shift`, hence we haven't done anything
+    // 'shift-worthy', i.e. shift=0:
+    shift = 0;
+  }
 
   return {
     shift: shift,
@@ -606,11 +597,22 @@ LinkifyIt.prototype.test = function test(text) {
       if (this.__index__ < 0 || tld_pos < this.__index__) {
         if ((ml = text.match(this.__opts__.fuzzyIP ? this.re.link_fuzzy : this.re.link_no_ip_fuzzy)) !== null) {
           shift = ml.index + ml[1].length;
+          // now make sure we didn't gobble too much:
+          // some characters are not acceptable at the end
+          // of a URL path/query/bookmark section, e.g. dot `.`:
+          // remove those from the end of the match.
+          // Then there's the case where the uri may
+          // be enclosed in braces/backets/parens, which we can
+          // only remove properly from the tail end when
+          // we know what *preceeded* the detected uri:
+          var rv = trimUnwantedTailsAndWraps(this.re, ml[1], ml[2]);
+          shift += rv.shift;
+          next = shift + rv.text.length;
 
           if (this.__index__ < 0 || shift < this.__index__) {
             this.__schema__     = '';
             this.__index__      = shift;
-            this.__last_index__ = ml.index + ml[0].length;
+            this.__last_index__ = next;
           }
         }
       }
@@ -626,7 +628,6 @@ LinkifyIt.prototype.test = function test(text) {
       if ((me = text.match(this.re.email_fuzzy)) !== null) {
         len = me[0].length;
         shift = me.index + me[1].length;
-        next  = me.index + me[0].length;
         // now make sure we didn't gobble too much:
         // some characters are not acceptable at the end
         // of a URL query/bookmark section, e.g. dot `.`:
@@ -635,38 +636,15 @@ LinkifyIt.prototype.test = function test(text) {
         // be enclosed in braces/backets/parens, which we can
         // only remove properly from the tail end when
         // we know what *preceeded* the detected email uri:
-        console.warn('############################################ fuzzy email:', {
-          m: me,
-          shift: shift,
-          next: next,
-          len: len
-        });
         var tr = trimUnwantedTailsAndWraps(this.re, me[1], me[2]);
         shift += tr.shift;
         next = shift + tr.text.length;
-        console.warn('********************************************* fuzzy email:', {
-          m: me,
-          tr: tr,
-          shift: shift,
-          next: next,
-          len: len,
-          taillen: tr.text.length,
-          grep: text.substring(shift, next)
-        });
 
         if (this.__index__ < 0 || shift < this.__index__ ||
             (shift === this.__index__ && next > this.__last_index__)) {
           this.__schema__     = 'mailto:';
           this.__index__      = shift;
           this.__last_index__ = next;
-          console.warn('fuzzy email:', {
-            m: me,
-            shift: shift,
-            next: next,
-            schema:  this.__schema__,
-            index: this.__index__,
-            last: this.__last_index__
-          });
         }
       }
     }
