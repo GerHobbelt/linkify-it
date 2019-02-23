@@ -43,19 +43,24 @@ describe('links', function () {
       [ '', '', '' ],
       [ '\n\n', '\n\n', 'surrounded by whitespace' ],
       [ 'With pre bla bla bla ', '. Post bla bla bla.', 'embedded in a sentence (text + period)' ],
-      // [ 'With pre bla bla bla ', ', but post bla bla bla.', 'embedded in a sentence (text + comma)' ],
-      // [ 'With pre bla bla bla ', ': post bla bla bla.', 'embedded in a sentence (text + colon)' ],
-      // [ 'With pre bla bla bla ', '; yet post bla bla bla.', 'embedded in a sentence (text + semicolon)' ],
+      [ 'With pre bla bla bla ', ', but post bla bla bla.', 'embedded in a sentence (text + comma)' ],
+      [ 'With pre bla bla bla ', ': post bla bla bla.', 'embedded in a sentence (text + colon)' ],
+      [ 'With pre bla bla bla ', '; yet post bla bla bla.', 'embedded in a sentence (text + semicolon)' ],
       // [ 'With pre bla bla bla (', '), post bla bla bla.', 'enclosed in ()-parens' ],
       // [ 'With pre bla bla bla {', '}, post bla bla bla.', 'enclosed in {}-braces' ],
       // [ 'With pre bla bla bla [', '], post bla bla bla.', 'enclosed in []-brackets' ],
       [ 'With pre bla bla bla <', '>, post bla bla bla.', 'enclosed in <>-brackets' ],
       // [ 'With pre bla bla bla *', '*, post bla bla bla.', 'enclosed in *-stars' ],
-      // [ 'With pre bla bla bla (', ', which is under test) and post bla bla bla.', 'inside ()-parens' ],
-      // [ 'With pre bla bla bla {', ', which is under test} and post bla bla bla.', 'inside {}-braces' ],
-      // [ 'With pre bla bla bla [', ', which is under test] and post bla bla bla.', 'inside []-brackets' ],
-      [ 'With pre bla bla bla <', ', which is under test> and post bla bla bla.', 'inside <>-brackets' ]
-      // [ 'With pre bla bla bla *', ', which is under test* and post bla bla bla.', 'inside *-stars' ]
+      [ 'With pre bla bla bla (', ', which is under test) and post bla bla bla.',
+        'inside ()-parens, link followed by comma' ],
+      [ 'With pre bla bla bla {', ', which is under test} and post bla bla bla.',
+        'inside {}-braces, link followed by comma' ],
+      [ 'With pre bla bla bla [', ', which is under test] and post bla bla bla.',
+        'inside []-brackets, link followed by comma' ],
+      [ 'With pre bla bla bla <', ', which is under test> and post bla bla bla.',
+        'inside <>-brackets, link followed by comma' ]
+      // [ 'With pre bla bla bla *', ', which is under test* and post bla bla bla.',
+      //   'inside *-stars, link followed by comma' ]
     ].forEach(function (spec) {
       var pre = spec[0];
       var post = spec[1];

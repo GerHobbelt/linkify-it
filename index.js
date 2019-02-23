@@ -610,13 +610,6 @@ LinkifyIt.prototype.test = function test(text) {
         this.__schema__     = m[2];
         this.__index__      = m.index + m[1].length;
         this.__last_index__ = m.index + m[0].length + len;
-        console.warn('schema test:', {
-          m: m,
-          len: len,
-          schema:         this.__schema__,
-          index: this.__index__,
-          last: this.__last_index__
-        });
         break;
       }
     }

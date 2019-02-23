@@ -55,4 +55,6 @@ mailto:bar
 http://[::]:80/ietf/uri
 http://[::]/ietf/uri
 
+% Not enough to be considered a phone number
+tel:+12345
 
