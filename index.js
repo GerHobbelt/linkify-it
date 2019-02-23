@@ -46,6 +46,85 @@ function isOptionsObj(obj) {
   }, false);
 }
 
+/**
+ * Detect and trim any undesirable tail characters and/or enclosing braces/brackets/parens
+ * from the given uri.
+ *
+ * @param  {Object} re     The set of predefined regexes used by linkify.
+ * @param  {String} prefix The (possibly empty) prefix of the detected uri.
+ * @param  {String} text   The detected uri.
+ * @return {Object}        `{shift, text}` info for the trimmed match.
+ */
+function trimUnwantedTailsAndWraps(re, prefix, text) {
+  console.warn('function trimUnwantedTailsAndWraps:', {
+    prefix: prefix,
+    text: text
+  });
+  text = prefix + text;
+  // now make sure we didn't gobble too much:
+  // some characters are not acceptable at the end
+  // of a URL query/bookmark section, e.g. dot `.`:
+  // remove those from the end of the match
+  text = text.replace(re.strip_from_end_of_url, '');
+  console.warn('function trimUnwantedTailsAndWraps STRIP #1:', {
+    prefix: prefix,
+    text: text
+  });
+
+  // now see if the given uri is wrapped in braces or brackets of any kind:
+  if (!re.wrappings) {
+    re.wrappings = RegExp(
+      // match[1]: inside [] brackets:
+      '^\\[(.*)\\]$|' +
+      // match[2]: inside {} brackets:
+      '^\\{(.*)\\}$|' +
+      // match[3]: inside () brackets:
+      '^\\((.*)\\)$|' +
+      // match[4]: inside "" quotes:
+      '^"(.*)"$|' +
+      // match[5]: inside '' quotes:
+      "^'(.*)'$", 'i');
+  }
+
+  var done = false;
+  var shift = 0;
+  function replMatch(m, m1, m2, m3, m4, m5, offset) {
+    done = false;
+    // jump over the leading character of the match: `[ { ( " '`
+    shift += offset + 1;
+    return m1 || m2 || m3 || m4 || m5;
+  }
+  while (!done) {
+    done = true;
+    text = text.replace(re.wrappings, replMatch);
+  }
+
+  console.warn('function trimUnwantedTailsAndWraps LOOP:', {
+    prefix: prefix,
+    text: text,
+    shift: shift
+  });
+  // the extracted (wrapped) uri may still have some undesired trailing characters
+  // attached: remove those now:
+  if (shift) {
+    text = text.replace(re.strip_from_end_of_url, '');
+  }
+  // correct for the prefix' length at the end, as we started with prefix added
+  // to the uri to process in here:
+  shift -= prefix.length;
+  console.warn('function trimUnwantedTailsAndWraps STRIP #2:', {
+    prefix: prefix,
+    prefixLength: prefix.length,
+    text: text,
+    shift: shift
+  });
+
+  return {
+    shift: shift,
+    text: text
+  };
+}
+
 
 var defaultSchemas = {
   'http:': {
@@ -59,23 +138,9 @@ var defaultSchemas = {
           self.re.src_port + self.re.src_host_terminator + self.re.src_path, 'i'
         );
       }
-      // console.warn({
-      //   text: text,
-      //   pos: pos,
-      //   tail: tail,
-      //   test: self.re.http.test(tail),
-      //   match: tail.match(self.re.http),
-      //   http_re: 1 //self.re.http.source
-      // });
       if (self.re.http.test(tail)) {
         var m = tail.match(self.re.http);
-        var l = m[0].length;
-        // now make sure we didn't gobble too much:
-        // some characters are not acceptable at the end
-        // of a URL path/query/bookmark section, e.g. dot `.`:
-        // remove those from the end of the match
-        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
-        return tail.length;
+        return m[0].length;
       }
       return 0;
     }
@@ -89,7 +154,7 @@ var defaultSchemas = {
       var tail = text.slice(pos);
 
       if (!self.re.no_http) {
-      // compile lazily, because "host"-containing variables can change on tlds update.
+        // compile lazily, because "host"-containing variables can change on tlds update.
         self.re.no_http =  new RegExp(
           '^' +
           self.re.src_auth +
@@ -121,13 +186,7 @@ var defaultSchemas = {
         if (pos >= 3 && text[pos - 3] === '/') { return 0; }
 
         var m = tail.match(self.re.no_http);
-        var l = m[0].length;
-        // now make sure we didn't gobble too much:
-        // some characters are not acceptable at the end
-        // of a URL path/query/bookmark section, e.g. dot `.`:
-        // remove those from the end of the match
-        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
-        return tail.length;
+        return m[0].length;
       }
       return 0;
     }
@@ -144,21 +203,7 @@ var defaultSchemas = {
       }
       if (self.re.mailto.test(tail)) {
         var m = tail.match(self.re.mailto);
-        var l = m[0].length;
-        // now make sure we didn't gobble too much:
-        // some characters are not acceptable at the end
-        // of a URL query section, e.g. dot `.`:
-        // remove those from the end of the match
-        tail = tail.substring(0, l).replace(self.re.strip_from_end_of_url, '');
-        console.warn('mailto:', {
-          m: m,
-          l: l,
-          l2: tail.length,
-          tail: tail,
-          re: self.re.strip_from_end_of_url.source,
-          text: text
-        });
-        return tail.length - 2;
+        return m[0].length;
       }
       return 0;
     }
@@ -173,7 +218,8 @@ var defaultSchemas = {
         );
       }
       if (self.re.news.test(tail)) {
-        return tail.match(self.re.news)[0].length;
+        var m = tail.match(self.re.news);
+        return m[0].length;
       }
       return 0;
     }
@@ -188,7 +234,8 @@ var defaultSchemas = {
         );
       }
       if (self.re.telephone.test(tail)) {
-        return tail.match(self.re.telephone)[0].length;
+        var m = tail.match(self.re.telephone);
+        return m[0].length;
       }
       return 0;
     }
@@ -217,7 +264,8 @@ function createValidator(re) {
     var tail = text.slice(pos);
 
     if (re.test(tail)) {
-      return tail.match(re)[0].length;
+      var m = tail.match(re);
+      return m[0].length;
     }
     return 0;
   };
@@ -538,6 +586,13 @@ LinkifyIt.prototype.test = function test(text) {
         this.__schema__     = m[2];
         this.__index__      = m.index + m[1].length;
         this.__last_index__ = m.index + m[0].length + len;
+        console.warn('schema test:', {
+          m: m,
+          len: len,
+          schema:         this.__schema__,
+          index: this.__index__,
+          last: this.__last_index__
+        });
         break;
       }
     }
@@ -569,15 +624,49 @@ LinkifyIt.prototype.test = function test(text) {
       // We can't skip this check, because these cases are possible:
       // 192.168.1.1@gmail.com, my.in@example.com
       if ((me = text.match(this.re.email_fuzzy)) !== null) {
-
+        len = me[0].length;
         shift = me.index + me[1].length;
         next  = me.index + me[0].length;
+        // now make sure we didn't gobble too much:
+        // some characters are not acceptable at the end
+        // of a URL query/bookmark section, e.g. dot `.`:
+        // remove those from the end of the match.
+        // Then there's the case where the email address may
+        // be enclosed in braces/backets/parens, which we can
+        // only remove properly from the tail end when
+        // we know what *preceeded* the detected email uri:
+        console.warn('############################################ fuzzy email:', {
+          m: me,
+          shift: shift,
+          next: next,
+          len: len
+        });
+        var tr = trimUnwantedTailsAndWraps(this.re, me[1], me[2]);
+        shift += tr.shift;
+        next = shift + tr.text.length;
+        console.warn('********************************************* fuzzy email:', {
+          m: me,
+          tr: tr,
+          shift: shift,
+          next: next,
+          len: len,
+          taillen: tr.text.length,
+          grep: text.substring(shift, next)
+        });
 
         if (this.__index__ < 0 || shift < this.__index__ ||
             (shift === this.__index__ && next > this.__last_index__)) {
           this.__schema__     = 'mailto:';
           this.__index__      = shift;
           this.__last_index__ = next;
+          console.warn('fuzzy email:', {
+            m: me,
+            shift: shift,
+            next: next,
+            schema:  this.__schema__,
+            index: this.__index__,
+            last: this.__last_index__
+          });
         }
       }
     }
